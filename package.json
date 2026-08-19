@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "main": "build/boot.js",
+  "main": "server.js",
   "engines": {
     "node": ">=22"
   },
@@ -12,7 +12,7 @@
     "build": "vite build && esbuild api/boot.ts --platform=node --bundle --format=esm --outdir=build --banner:js=\"import { createRequire } from 'module';const require = createRequire(import.meta.url);\"",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "NODE_ENV=production node build/boot.js",
+    "start": "node server.js",
     "check": "tsc -b",
     "format": "prettier --write .",
     "test": "vitest run",

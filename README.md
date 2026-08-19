@@ -106,7 +106,7 @@ The production contract is an OpenShip-managed **user systemd** service behind C
 - loopback application port: `20135`
 - current unit: `openship-dep_V6-fZ3rKVx7vgt5t.service`
 - external environment file: `~/.openship/env/sas.env`
-- start command: `node --env-file=~/.openship/env/sas.env build/boot.js`
+- start command: `node --env-file=~/.openship/env/sas.env server.js`
 
 From an authenticated, clean checkout:
 
@@ -120,7 +120,7 @@ openship init
 openship deploy
 ```
 
-OpenShip should install dependencies, run `npm run build`, and run `build/boot.js` with `NODE_ENV=production` and `PORT=20135`. Caddy terminates TLS and proxies `sas.hhdevs.space` to `127.0.0.1:20135`. MongoDB is external; no database files belong in an OpenShip release.
+OpenShip should install dependencies, run `npm run build`, and run `server.js` with `PORT=20135`. The launcher sets `NODE_ENV=production` and loads `build/boot.js`. Caddy terminates TLS and proxies `sas.hhdevs.space` to `127.0.0.1:20135`. MongoDB is external; no database files belong in an OpenShip release.
 
 ### Production verification
 
