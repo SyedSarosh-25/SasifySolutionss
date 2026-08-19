@@ -5,14 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && esbuild api/boot.ts --platform=node --bundle --format=esm --outdir=dist --banner:js=\"import { createRequire } from 'module';const require = createRequire(import.meta.url);\"",
+    "build": "vite build && esbuild api/boot.ts --platform=node --bundle --format=esm --outdir=build --banner:js=\"import { createRequire } from 'module';const require = createRequire(import.meta.url);\"",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "NODE_ENV=production node dist/boot.js",
+    "start": "NODE_ENV=production node build/boot.js",
     "check": "tsc -b",
     "format": "prettier --write .",
     "test": "vitest run",
-    "db:seed": "esbuild db/seed.ts --platform=node --bundle --format=cjs --outfile=dist/seed.cjs && node dist/seed.cjs"
+    "db:seed": "esbuild db/seed.ts --platform=node --bundle --format=cjs --outfile=build/seed.cjs && node build/seed.cjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.965.0",

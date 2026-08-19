@@ -69,7 +69,7 @@ Production uses OpenShip v0.3.0, a user-systemd service, and Caddy:
 - domain: `sas.hhdevs.space`
 - env file: `~/.openship/env/sas.env`
 - build: `npm ci && npm run build`
-- start: `NODE_ENV=production PORT=20135 node --env-file=~/.openship/env/sas.env dist/boot.js`
+- start: `NODE_ENV=production PORT=20135 node --env-file=~/.openship/env/sas.env build/boot.js`
 
 MongoDB and any object storage are external persistent systems. Releases are disposable. OpenShip owns deployment units; Caddy owns TLS and reverse proxying. Do not embed secrets into the unit, repository, build output, or command history.
 
@@ -83,7 +83,7 @@ The deployment ID may change after replacement. Resolve the current OpenShip dep
 - [ ] `npm run check` passes.
 - [ ] `npm run lint` passes.
 - [ ] `npm test` passes.
-- [ ] `npm run build` produces `dist/public/` and `dist/boot.js`.
+- [ ] `npm run build` produces `build/public/` and `build/boot.js`.
 - [ ] No secret, PII, production payload, database export, or delivered credential is staged.
 - [ ] Loopback homepage responds on port `20135` after deployment.
 - [ ] Public HTTPS homepage responds through Caddy.

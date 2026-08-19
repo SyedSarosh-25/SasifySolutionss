@@ -16,8 +16,8 @@ React 19 SPA (`src/`)
        -> MongoDB (`DATABASE_URL`)
 
 Production build:
-  Vite -> `dist/public/`
-  esbuild -> `dist/boot.js`
+  Vite -> `build/public/`
+  esbuild -> `build/boot.js`
   Hono serves API + static SPA from one Node process
 ```
 
@@ -63,7 +63,7 @@ Runtime values belong in an untracked `.env` or the deployment secret store. The
 | `CREDENTIAL_ENCRYPTION_KEY` | Optional separate key for delivered passwords and 2FA secrets; strongly recommended. |
 | `WEBHOOK_SECRET` | Authenticates supported payment/phone automation webhooks. |
 | `PORT` | Production Hono listen port; defaults to `3000`. |
-| `NODE_ENV` | Runtime mode. Production mode serves `dist/public` and starts workers. |
+| `NODE_ENV` | Runtime mode. Production mode serves `build/public` and starts workers. |
 | `PUBLIC_APP_URL` | Canonical public URL used for callbacks/webhooks. |
 | `KIMI_AUTH_URL`, `KIMI_OPEN_URL` | Server-side Kimi authentication/platform endpoints. |
 | `OWNER_UNION_ID` | Grants the initial owner/admin role. |
@@ -83,7 +83,7 @@ Runtime values belong in an untracked `.env` or the deployment secret store. The
 | `npm run check` | Run the TypeScript project build/check. |
 | `npm run lint` | Run ESLint. |
 | `npm test` | Run Vitest once. |
-| `npm run build` | Build SPA assets and bundle `api/boot.ts` to `dist/boot.js`. |
+| `npm run build` | Build SPA assets and bundle `api/boot.ts` to `build/boot.js`. |
 | `npm start` | Run the completed production bundle. |
 | `npm run preview` | Preview Vite output; not the production API process. |
 | `npm run db:seed` | Bundle and run the MongoDB seed; non-production only. |
@@ -106,7 +106,7 @@ The production contract is an OpenShip-managed **user systemd** service behind C
 - loopback application port: `20135`
 - current unit: `openship-dep_V6-fZ3rKVx7vgt5t.service`
 - external environment file: `~/.openship/env/sas.env`
-- start command: `node --env-file=~/.openship/env/sas.env dist/boot.js`
+- start command: `node --env-file=~/.openship/env/sas.env build/boot.js`
 
 From an authenticated, clean checkout:
 
@@ -120,7 +120,7 @@ openship init
 openship deploy
 ```
 
-OpenShip should install dependencies, run `npm run build`, and run `dist/boot.js` with `NODE_ENV=production` and `PORT=20135`. Caddy terminates TLS and proxies `sas.hhdevs.space` to `127.0.0.1:20135`. MongoDB is external; no database files belong in an OpenShip release.
+OpenShip should install dependencies, run `npm run build`, and run `build/boot.js` with `NODE_ENV=production` and `PORT=20135`. Caddy terminates TLS and proxies `sas.hhdevs.space` to `127.0.0.1:20135`. MongoDB is external; no database files belong in an OpenShip release.
 
 ### Production verification
 
@@ -153,7 +153,7 @@ The authoritative persistent data is MongoDB plus any external object storage co
 | Startup reports a missing variable | In production, `APP_SECRET` and `DATABASE_URL` are required by `api/lib/env.ts`. |
 | MongoDB connection fails | Confirm `DATABASE_URL` is a MongoDB URI, network access, TLS parameters, and database user permissions. |
 | Homepage works but API calls fail | Inspect the Hono journal, `/api/trpc/*` requests, session cookies, and `PUBLIC_APP_URL`. |
-| Static assets are missing | Run `npm run build` and confirm `dist/public/` exists beside `dist/boot.js`. |
+| Static assets are missing | Run `npm run build` and confirm `build/public/` exists beside `build/boot.js`. |
 | Provider purchase fails | Check the relevant provider key and readiness settings; preserve idempotency keys and do not blind-retry a charge. |
 | Public URL fails but loopback works | Verify Caddy routes `sas.hhdevs.space` to port `20135`. |
 | Type/build disagreement | Run `npm run check` before `npm run build`; do not treat a successful Vite transpile as a type-check. |
