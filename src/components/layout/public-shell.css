@@ -1,0 +1,270 @@
+.sas-site {
+  --shell-nav-bg: rgba(255, 255, 255, 0.94);
+  --shell-nav-edge: rgba(214, 224, 255, 0.9);
+  --shell-control-bg: #ffffff;
+  --shell-control-edge: #d6e0ff;
+  --shell-primary: #155cff;
+  --shell-primary-2: #6d35ff;
+  --shell-footer-bg: #071126;
+  --shell-footer-surface: rgba(255, 255, 255, 0.055);
+  --shell-footer-edge: rgba(176, 196, 240, 0.16);
+  --shell-footer-ink: #f7f9ff;
+  --shell-footer-muted: #aeb9d0;
+  --shell-footer-link: #c0c9dc;
+  --shell-footer-accent: #7ea5ff;
+}
+
+.sas-site[data-site-template="atlas-3d"],
+.sas-site[data-site-template="nordic-minimal"] {
+  --shell-footer-ink: var(--site-ink);
+  --shell-footer-muted: color-mix(in srgb, var(--site-muted) 88%, var(--site-ink));
+  --shell-footer-link: var(--site-ink);
+  --shell-footer-accent: var(--site-accent);
+}
+
+.sas-site:not([data-site-template="classic-blue"]):not([data-site-template="atlas-3d"]):not([data-site-template="nordic-minimal"]) {
+  --shell-footer-ink: #f7f9ff;
+  --shell-footer-muted: color-mix(in srgb, var(--site-muted) 64%, #ffffff);
+  --shell-footer-link: #f7f9ff;
+  --shell-footer-accent: color-mix(in srgb, var(--site-accent) 58%, #ffffff);
+}
+
+.public-shell-header {
+  isolation: isolate;
+}
+
+.public-shell-nav {
+  border-color: var(--shell-nav-edge);
+  background: var(--shell-nav-bg);
+  box-shadow: 0 8px 28px rgba(12, 37, 104, 0.055);
+  backdrop-filter: blur(20px) saturate(140%);
+}
+
+.public-shell-logo-mark,
+.public-shell-icon-button,
+.public-shell-account,
+.public-shell-currency {
+  border-color: var(--shell-control-edge);
+  background: var(--shell-control-bg);
+}
+
+.public-shell-logo-mark {
+  box-shadow: 0 7px 18px rgba(30, 72, 185, 0.09);
+}
+
+.public-shell-icon-button,
+.public-shell-account,
+.public-shell-admin,
+.public-shell-secondary {
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.public-shell-icon-button:hover,
+.public-shell-account:hover {
+  border-color: color-mix(in srgb, var(--site-accent) 34%, var(--shell-control-edge));
+  background: color-mix(in srgb, var(--site-accent) 5%, var(--shell-control-bg));
+}
+
+.public-shell-admin {
+  border-color: #f1d289;
+  background: #fff7df;
+  color: #8b5900;
+}
+
+.public-shell-primary,
+.public-shell-currency-active,
+.public-footer-support,
+.public-shell-active-rail {
+  background: linear-gradient(135deg, var(--shell-primary), var(--shell-primary-2));
+}
+
+.public-shell-primary,
+.public-footer-support {
+  box-shadow: 0 12px 26px rgba(21, 92, 255, 0.24);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.public-shell-primary:hover,
+.public-footer-support:hover {
+  box-shadow: 0 15px 30px rgba(21, 92, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.public-shell-drawer {
+  border-color: var(--shell-control-edge);
+  background: #ffffff;
+}
+
+.public-footer {
+  border-color: #14264c;
+  background: var(--shell-footer-bg);
+  color: var(--shell-footer-ink);
+}
+
+.public-footer-glow {
+  background:
+    radial-gradient(circle at 8% -10%, rgba(21, 92, 255, 0.24), transparent 30%),
+    radial-gradient(circle at 93% 4%, rgba(109, 53, 255, 0.18), transparent 28%),
+    linear-gradient(rgba(116, 151, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(116, 151, 255, 0.045) 1px, transparent 1px);
+  background-size: auto, auto, 54px 54px, 54px 54px;
+  mask-image: linear-gradient(to bottom, black, transparent 78%);
+}
+
+.public-footer-desk {
+  border-color: var(--shell-footer-edge);
+  background: var(--shell-footer-surface);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(16px);
+}
+
+.public-footer-icon,
+.public-footer-brand-mark {
+  border-color: rgba(144, 174, 239, 0.22);
+  background: rgba(255, 255, 255, 0.07);
+  color: #a9c2ff;
+}
+
+.public-footer-eyebrow,
+.public-footer-heading {
+  color: var(--shell-footer-accent);
+}
+
+.public-footer-copy,
+.public-footer-meta,
+.public-footer-bottom {
+  color: var(--shell-footer-muted);
+}
+
+.public-footer-secondary {
+  border-color: rgba(164, 187, 237, 0.25);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f7f9ff;
+}
+
+.public-footer-secondary:hover {
+  border-color: rgba(164, 187, 237, 0.46);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.public-footer-trust-icon {
+  background: rgba(122, 162, 255, 0.12);
+  color: #8eb1ff;
+}
+
+.public-footer-link {
+  color: var(--shell-footer-link);
+}
+
+.public-footer-link:hover {
+  color: #ffffff;
+}
+
+.public-footer-rule,
+.public-footer-bottom {
+  border-color: rgba(164, 187, 237, 0.15);
+  background-color: rgba(164, 187, 237, 0.15);
+}
+
+.public-footer-bottom {
+  background: transparent;
+}
+
+.public-footer-assurance {
+  color: var(--shell-footer-link);
+}
+
+.public-footer-mobile-group {
+  border-color: rgba(164, 187, 237, 0.15);
+}
+
+.public-footer-mobile-group summary {
+  color: var(--shell-footer-link);
+}
+
+.public-footer-mobile-group summary::-webkit-details-marker {
+  display: none;
+}
+
+.public-footer-mobile-group[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.sas-site:not([data-site-template="classic-blue"]) .public-footer-mobile-group {
+  border-color: var(--site-edge);
+}
+
+.sas-site:not([data-site-template="classic-blue"]) .public-footer-mobile-group summary {
+  color: var(--shell-footer-link);
+}
+
+.sas-site:not([data-site-template="classic-blue"]) .public-footer {
+  color: var(--shell-footer-ink);
+}
+
+.sas-site:not([data-site-template="classic-blue"]) .public-footer-copy,
+.sas-site:not([data-site-template="classic-blue"]) .public-footer-meta,
+.sas-site:not([data-site-template="classic-blue"]) .public-footer-bottom {
+  color: var(--shell-footer-muted);
+}
+
+.sas-site:not([data-site-template="classic-blue"]) .public-footer-desk,
+.sas-site:not([data-site-template="classic-blue"]) .public-footer-secondary,
+.sas-site:not([data-site-template="classic-blue"]) .public-footer-icon,
+.sas-site:not([data-site-template="classic-blue"]) .public-footer-brand-mark {
+  border-color: var(--site-edge);
+}
+
+.sas-site:not([data-site-template="classic-blue"]) .public-footer-heading,
+.sas-site:not([data-site-template="classic-blue"]) .public-footer-eyebrow {
+  color: var(--shell-footer-accent);
+}
+
+.sas-site:not([data-site-template="classic-blue"]) .public-footer-assurance,
+.sas-site:not([data-site-template="classic-blue"]) .public-footer-link {
+  color: var(--shell-footer-link);
+}
+
+.sas-site:not([data-site-template="classic-blue"]) .public-footer-link:hover {
+  color: var(--shell-footer-accent);
+}
+
+.sas-site:not([data-site-template="classic-blue"]) .public-footer-trust-icon {
+  background: color-mix(in srgb, var(--site-accent) 12%, transparent);
+  color: var(--site-accent);
+}
+
+.sas-site:not([data-site-template="classic-blue"]) .public-footer-secondary {
+  background: color-mix(in srgb, var(--site-surface) 70%, transparent);
+  color: var(--site-ink) !important;
+}
+
+.public-shell-nav-link:focus-visible,
+.public-shell-icon-button:focus-visible,
+.public-shell-primary:focus-visible,
+.public-shell-account:focus-visible,
+.public-shell-admin:focus-visible,
+.public-footer a:focus-visible,
+.public-shell-drawer a:focus-visible,
+.public-shell-drawer button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--site-accent) 48%, transparent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 639px) {
+  .public-footer-glow {
+    background-size: auto, auto, 42px 42px, 42px 42px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .public-shell-primary,
+  .public-footer-support,
+  .public-shell-logo-mark img,
+  .public-shell-icon-button,
+  .public-shell-account,
+  .public-shell-admin,
+  .public-shell-active-rail {
+    transition: none !important;
+  }
+}
