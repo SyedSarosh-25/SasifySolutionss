@@ -1,9 +1,11 @@
+/* Refresh the hashed production asset after the Hostinger CDN cached a bad CSS response. */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
+    --sasify-build-refresh: "2026-08-20";
     /* ---- SASIFY Solutions light design tokens ---- */
     --background: 222 100% 98%;
     --foreground: 234 54% 6%;
