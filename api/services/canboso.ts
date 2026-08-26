@@ -26,10 +26,28 @@ const productSchema = z.object({
   stats: statsSchema,
 }).passthrough();
 
+const v2ProductSchema = z.object({
+  productId: z.string(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  emoji: z.string().optional().nullable(),
+  productType: z.string().optional().nullable(),
+  price: z.object({
+    amount: z.number(),
+    currency: z.string(),
+    text: z.string().optional().nullable(),
+  }).passthrough(),
+  availability: z.object({
+    available: z.number().optional().nullable(),
+    sold: z.number().optional().nullable(),
+  }).passthrough().optional().nullable(),
+}).passthrough();
+
 const productListResponseSchema = z.union([
   z.array(productSchema),
   z.object({ data: z.array(productSchema) }).passthrough(),
   z.object({ products: z.array(productSchema) }).passthrough(),
+  z.object({ success: z.boolean(), products: z.array(v2ProductSchema) }).passthrough(),
 ]);
 
 const purchaseResponseSchema = z.object({}).passthrough();
@@ -38,15 +56,16 @@ export type CanbosoProduct = z.infer<typeof productSchema>;
 export type CanbosoPurchaseResponse = z.infer<typeof purchaseResponseSchema>;
 
 async function headers(extra?: Record<string, string>) {
-  const apiKey = await getProviderApiKey("canboso");
-  if (!apiKey) {
-    throw new Error("Canboso API key is not configured");
-  }
   return {
-    "X-API-Key": apiKey,
     "Accept": "application/json",
     ...extra,
   };
+}
+
+async function apiKey() {
+  const value = await getProviderApiKey("canboso");
+  if (!value) throw new Error("Canboso API key is not configured");
+  return value;
 }
 
 async function parseJsonResponse(response: Response) {
@@ -63,15 +82,44 @@ async function parseJsonResponse(response: Response) {
 }
 
 function unwrapProducts(parsed: z.infer<typeof productListResponseSchema>) {
-  return (Array.isArray(parsed)
+  const products = (Array.isArray(parsed)
     ? parsed
     : "data" in parsed
       ? parsed.data
-      : parsed.products) as CanbosoProduct[];
+      : parsed.products) as unknown[];
+  return products.map((rawProduct): CanbosoProduct => {
+    const v2 = v2ProductSchema.safeParse(rawProduct);
+    if (v2.success) {
+      const product = v2.data;
+      const available = product.availability?.available ?? 0;
+      const sold = product.availability?.sold ?? 0;
+      return {
+        _id: product.productId,
+        product_name: product.name,
+        description: product.description ?? "",
+        emoji: product.emoji ?? "",
+        walletPricing: product.price.amount,
+        walletCurrency: product.price.currency,
+        walletPricingText: product.price.text ?? `${product.price.amount} ${product.price.currency}`,
+        slotProductType: product.productType ?? "",
+        stats: { available, sold, total: available + sold },
+      } satisfies CanbosoProduct;
+    }
+    return productSchema.parse(rawProduct);
+  });
+}
+
+function canbosoUnitPriceUsd(product: CanbosoProduct) {
+  const explicitUsd = Number(product.usdPricing);
+  if (Number.isFinite(explicitUsd) && explicitUsd > 0) return explicitUsd;
+  const currency = String(product.walletCurrency || "USD").trim().toUpperCase();
+  const walletPrice = Number(product.walletPricing);
+  if (["USD", "USDT"].includes(currency) && Number.isFinite(walletPrice) && walletPrice > 0) return walletPrice;
+  throw new Error(`Canboso wallet currency ${currency || "UNKNOWN"} cannot be treated as USD. Configure an explicit conversion before enabling purchases.`);
 }
 
 export function normalizeCanbosoProduct(product: CanbosoProduct) {
-  const price = product.walletPricing ?? product.usdPricing ?? 0;
+  const price = canbosoUnitPriceUsd(product);
   const available = product.stats?.available ?? 0;
   const total = product.stats?.total ?? available;
   return {
@@ -96,7 +144,7 @@ export function normalizeCanbosoProduct(product: CanbosoProduct) {
 }
 
 export function calculateCanbosoPrice(product: CanbosoProduct, quantity: number) {
-  const unitPrice = product.walletPricing ?? product.usdPricing ?? 0;
+  const unitPrice = canbosoUnitPriceUsd(product);
   return Math.round(unitPrice * quantity * 100) / 100;
 }
 
@@ -117,7 +165,8 @@ function sanitizeCanbosoItem(item: any) {
 
 export function summarizeCanbosoPurchase(response: CanbosoPurchaseResponse) {
   const data = (response.data || response.purchase || response.order || response) as Record<string, any>;
-  const rawItems = data.deliveredAccounts || data.items || data.codes || data.accounts || data.credentials || data.results || response.items || [];
+  const delivery = (response.delivery || data.delivery || {}) as Record<string, any>;
+  const rawItems = delivery.accounts || data.deliveredAccounts || data.items || data.codes || data.accounts || data.credentials || data.results || response.items || [];
   const items = Array.isArray(rawItems)
     ? rawItems.map(sanitizeCanbosoItem)
     : typeof rawItems === "string"
@@ -142,8 +191,10 @@ export function summarizeCanbosoPurchase(response: CanbosoPurchaseResponse) {
   };
 }
 
-export async function listCanbosoProducts() {
-  const response = await fetch(`${baseUrl}/api/telegram-buyer/products`, { headers: await headers() });
+export async function listCanbosoProducts(): Promise<CanbosoProduct[]> {
+  const key = await apiKey();
+  const query = new URLSearchParams({ key });
+  const response = await fetch(`${baseUrl}/api/v2/telegram-buyer/products?${query}`, { headers: await headers() });
   const parsed = productListResponseSchema.parse(await parseJsonResponse(response));
   return unwrapProducts(parsed);
 }
@@ -162,10 +213,12 @@ export async function purchaseCanbosoProduct(input: {
   quantity: number;
   idempotencyKey: string;
 }) {
-  const response = await fetch(`${baseUrl}/api/telegram-buyer/purchase`, {
+  const key = await apiKey();
+  const response = await fetch(`${baseUrl}/api/v2/telegram-buyer/purchase`, {
     method: "POST",
     headers: await headers({ "Content-Type": "application/json", "Idempotency-Key": input.idempotencyKey }),
     body: JSON.stringify({
+      key,
       product_id: input.productId,
       quantity: input.quantity,
     }),
