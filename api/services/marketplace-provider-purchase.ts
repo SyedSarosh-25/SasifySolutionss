@@ -1,8 +1,9 @@
 import { buyTechnysoftProduct } from "./technysoft";
 import { purchaseCanbosoProduct, summarizeCanbosoPurchase } from "./canboso";
 import { createAkundingOrder, summarizeAkundingOrder } from "./akunding";
+import { purchaseZoomStoreProduct, summarizeZoomStorePurchase } from "./zoomstore";
 
-export type MarketplaceProvider = "technysoft" | "canboso" | "akunding";
+export type MarketplaceProvider = "technysoft" | "canboso" | "akunding" | "zoomstore" | "ssondigital";
 
 export async function purchaseExternalMarketplaceProduct(
   provider: MarketplaceProvider,
@@ -24,5 +25,11 @@ export async function purchaseExternalMarketplaceProduct(
   if (provider === "canboso") {
     return summarizeCanbosoPurchase(await purchaseCanbosoProduct({ productId: externalProductId, quantity, idempotencyKey }));
   }
-  return summarizeAkundingOrder(await createAkundingOrder({ productId: Number(externalProductId), quantity, idempotencyKey }));
+  if (provider === "akunding") {
+    return summarizeAkundingOrder(await createAkundingOrder({ productId: Number(externalProductId), quantity, idempotencyKey }));
+  }
+  if (provider === "zoomstore") {
+    return summarizeZoomStorePurchase(await purchaseZoomStoreProduct({ productId: externalProductId, quantity, idempotencyKey }));
+  }
+  throw new Error("SSOn Digital purchases require manual owner fulfillment until the provider publishes its order request contract.");
 }

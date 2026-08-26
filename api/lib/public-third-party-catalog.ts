@@ -1,4 +1,4 @@
-const SUPPLIER_NAME_PATTERN = /\b(?:technysoft|canboso|akunding)\b/gi;
+const SUPPLIER_NAME_PATTERN = /\b(?:technysoft|canboso|akunding|zoomstore|zoom store|ssondigital|sson digital(?: works)?)\b/gi;
 
 export function sanitizeCustomerText(value: unknown) {
   return String(value ?? "")

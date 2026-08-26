@@ -185,7 +185,7 @@ const navItems = [
   { label: "Settings", icon: Settings, href: "/admin/settings" },
 ] as const;
 
-const PROVIDER_LIST = ["technysoft", "canboso", "akunding"] as const;
+const PROVIDER_LIST = ["technysoft", "canboso", "akunding", "zoomstore", "ssondigital"] as const;
 type ProviderName = (typeof PROVIDER_LIST)[number];
 
 const routeTitles: Record<string, string> = {
@@ -2526,7 +2526,7 @@ function SettingsAdminPage() {
     {
       id: "providers",
       title: "3rd-Party Providers",
-      description: "Manage API keys for Technysoft, Canboso, and Akunding.",
+      description: "Manage supplier API keys and verify wallet connections.",
       gradient: "linear-gradient(180deg, #155cff, #f0b90b)",
       iconBg: "bg-[#f4f6ff]",
       fields: [],
@@ -2545,13 +2545,13 @@ function SettingsAdminPage() {
 
   // ── Provider API Keys state
   const [providerKeys, setProviderKeys] = useState<Record<ProviderName, string>>({
-    technysoft: "", canboso: "", akunding: "",
+    technysoft: "", canboso: "", akunding: "", zoomstore: "", ssondigital: "",
   });
   const [savingProvider, setSavingProvider] = useState<ProviderName | null>(null);
   const [providerResults, setProviderResults] = useState<Record<ProviderName, {
     ok: boolean; balance: number | null; currency: string | null; latency: number; error: string | null; saved: boolean;
     maskedKey?: string;
-  } | null>>({ technysoft: null, canboso: null, akunding: null });
+  } | null>>({ technysoft: null, canboso: null, akunding: null, zoomstore: null, ssondigital: null });
   const [providerLoaded, setProviderLoaded] = useState(false);
 
   const providerSave = trpc.providerSettings.providerKeySave.useMutation();
@@ -2663,14 +2663,18 @@ function SettingsAdminPage() {
 
   const providerLabels: Record<ProviderName, { name: string; desc: string }> = {
     technysoft: { name: "Technysoft", desc: "X-API-Key auth — wallet balance in USD" },
-    canboso: { name: "Canboso", desc: "X-API-Key via query param — supports USD/VND" },
+    canboso: { name: "Canboso", desc: "API v2 query-key auth — wallet balance in USD" },
     akunding: { name: "Akunding", desc: "Bearer token auth — balance in RMB" },
+    zoomstore: { name: "ZoomStore", desc: "X-API-Key auth — automatic purchasing supported" },
+    ssondigital: { name: "SSOn Digital", desc: "X-API-Key auth — manual fulfillment only" },
   };
 
   const providerGradients: Record<ProviderName, string> = {
     technysoft: "linear-gradient(135deg, #155cff, #5b21b6)",
     canboso: "linear-gradient(135deg, #0b8f34, #06b6d4)",
     akunding: "linear-gradient(135deg, #f97316, #ef4444)",
+    zoomstore: "linear-gradient(135deg, #7c3aed, #2563eb)",
+    ssondigital: "linear-gradient(135deg, #111827, #64748b)",
   };
 
   const savedValues: Record<string, string> = {};

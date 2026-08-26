@@ -15,6 +15,8 @@ import {
 import { calculateTechnysoftPrice, getTechnysoftProduct } from "../services/technysoft";
 import { calculateCanbosoPrice, getCanbosoProduct } from "../services/canboso";
 import { calculateAkundingPrice, getAkundingProduct } from "../services/akunding";
+import { calculateZoomStorePrice, getZoomStoreProduct } from "../services/zoomstore";
+import { calculateSsonPrice, getSsonProduct } from "../services/sson-digital";
 import { settleReferralCommissionSafely } from "../services/referral";
 import { applyWalletMutation, centsToMoney, moneyToCents, runInTransaction } from "../services/wallet-ledger";
 import { sanitizeProviderDeliveryItems } from "../lib/provider-delivery";
@@ -72,7 +74,7 @@ async function verifyStock(provider: Provider, externalProductId: string, quanti
       unlimited: false,
       totalCostCents: moneyToCents(calculateCanbosoPrice(product, quantity)),
     };
-  } else {
+  } else if (provider === "akunding") {
     const product = await getAkundingProduct(Number(externalProductId));
     const available = product.stock ?? 0;
     if (available < quantity) throw new TRPCError({ code: "CONFLICT", message: `Only ${available} available in stock.` });
@@ -80,6 +82,24 @@ async function verifyStock(provider: Provider, externalProductId: string, quanti
       stock: available,
       unlimited: false,
       totalCostCents: moneyToCents(calculateAkundingPrice(product, quantity)),
+    };
+  } else if (provider === "zoomstore") {
+    const product = await getZoomStoreProduct(externalProductId);
+    const available = product.stock ?? 0;
+    if (available < quantity) throw new TRPCError({ code: "CONFLICT", message: `Only ${available} available in stock.` });
+    return {
+      stock: available,
+      unlimited: false,
+      totalCostCents: moneyToCents(calculateZoomStorePrice(product, quantity)),
+    };
+  } else {
+    const product = await getSsonProduct(externalProductId);
+    const available = product.stock ?? 0;
+    if (available < quantity) throw new TRPCError({ code: "CONFLICT", message: `Only ${available} available in stock.` });
+    return {
+      stock: available,
+      unlimited: false,
+      totalCostCents: moneyToCents(calculateSsonPrice(product, quantity)),
     };
   }
 }

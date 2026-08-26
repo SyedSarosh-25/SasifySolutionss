@@ -378,7 +378,7 @@ export const AkundingOrder = mongoose.models.AkundingOrder || mongoose.model("Ak
 
 const thirdPartyProductSchema = new Schema({
   ...base,
-  provider: { type: String, enum: ["technysoft", "canboso", "akunding"], required: true, index: true },
+  provider: { type: String, enum: ["technysoft", "canboso", "akunding", "zoomstore", "ssondigital"], required: true, index: true },
   externalProductId: { type: String, required: true, index: true },
   duplicateKey: { type: String, required: true, index: true },
   sourceTitle: { type: String, required: true },
@@ -407,7 +407,7 @@ export const ThirdPartyOrder = mongoose.models.ThirdPartyOrder || mongoose.model
   ...base,
   userId: { type: Number, required: true, index: true },
   thirdPartyProductId: { type: Number, required: true, index: true },
-  provider: { type: String, enum: ["technysoft", "canboso", "akunding"], required: true, index: true },
+  provider: { type: String, enum: ["technysoft", "canboso", "akunding", "zoomstore", "ssondigital"], required: true, index: true },
   externalProductId: { type: String, required: true, index: true },
   externalOrderId: { type: String, sparse: true, index: true },
   idempotencyKey: { type: String, required: true, unique: true, index: true },

@@ -1,9 +1,11 @@
-export type ProviderNetworkName = "technysoft" | "canboso" | "akunding";
+export type ProviderNetworkName = "technysoft" | "canboso" | "akunding" | "zoomstore" | "ssondigital";
 
 const PROVIDER_LABELS: Record<ProviderNetworkName, string> = {
   technysoft: "Technysoft",
   canboso: "Canboso",
   akunding: "Akunding",
+  zoomstore: "ZoomStore",
+  ssondigital: "SSOn Digital",
 };
 
 export const PROVIDER_PROBE_TIMEOUT_MS = 8_000;

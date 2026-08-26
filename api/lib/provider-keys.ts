@@ -2,12 +2,14 @@ import { connectDb } from "../queries/connection";
 import { SiteSetting, clean } from "../mongo/models";
 import { revealCredential } from "./credential-security";
 
-type ProviderKey = "technysoft" | "canboso" | "akunding";
+type ProviderKey = "technysoft" | "canboso" | "akunding" | "zoomstore" | "ssondigital";
 
 const envKeyMap: Record<ProviderKey, string> = {
   technysoft: "TECHNYSOFT_API_KEY",
   canboso: "CANBOSO_API_KEY",
   akunding: "AKUNDING_API_KEY",
+  zoomstore: "ZOOMSTORE_API_KEY",
+  ssondigital: "SSON_DIGITAL_API_KEY",
 };
 
 /**

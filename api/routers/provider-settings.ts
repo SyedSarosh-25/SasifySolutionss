@@ -17,37 +17,52 @@ import {
 
 /* ── Provider wallet probe ───────────────────────────────── */
 
-const PROVIDER_WALLET_URLS: Record<string, { url: string; keyHeader: string; keyPrefix: string }> = {
+type ProviderWalletConfig = {
+  url: string;
+  auth: { type: "header"; name: string; prefix?: string } | { type: "query"; name: string };
+};
+
+const PROVIDER_WALLET_URLS: Record<ProviderNetworkName, ProviderWalletConfig> = {
   technysoft: {
     url: "https://api.technysoft.com/v1/me",
-    keyHeader: "X-API-Key",
-    keyPrefix: "", // key goes directly as value, no Bearer prefix
+    auth: { type: "header", name: "X-API-Key" },
   },
   canboso: {
-    url: "https://canboso.com/api/telegram-buyer/balance",
-    keyHeader: "X-API-Key",
-    keyPrefix: "", // Canboso uses ?key= in query, header not used
+    url: "https://canboso.com/api/v2/telegram-buyer/balance",
+    auth: { type: "query", name: "key" },
   },
   akunding: {
     url: "https://akunding.shop/api/v1/me",
-    keyHeader: "Authorization",
-    keyPrefix: "Bearer ",
+    auth: { type: "header", name: "Authorization", prefix: "Bearer " },
+  },
+  zoomstore: {
+    url: "https://api.zoomstore255.com/api/v1/balance",
+    auth: { type: "header", name: "X-API-Key" },
+  },
+  ssondigital: {
+    url: "https://ssondigitalworks.online/api/reseller?action=balance",
+    auth: { type: "header", name: "X-API-Key" },
   },
 };
 
-async function fetchProviderWallet(provider: ProviderNetworkName, apiKey: string) {
+export async function fetchProviderWallet(provider: ProviderNetworkName, apiKey: string) {
   const start = Date.now();
   const config = PROVIDER_WALLET_URLS[provider];
   if (!config) throw new Error(`Unknown provider: ${provider}`);
 
   const headers: Record<string, string> = { Accept: "application/json" };
-  headers[config.keyHeader] = config.keyPrefix
-    ? `${config.keyPrefix}${config.keyPrefix.endsWith(" ") ? "" : " "}${apiKey}`
-    : apiKey;
+  let url = config.url;
+  if (config.auth.type === "header") {
+    headers[config.auth.name] = `${config.auth.prefix || ""}${apiKey}`;
+  } else {
+    const parsedUrl = new URL(url);
+    parsedUrl.searchParams.set(config.auth.name, apiKey);
+    url = parsedUrl.toString();
+  }
 
   let res: Response;
   try {
-    res = await runProviderNetworkProbe(() => fetch(config.url, {
+    res = await runProviderNetworkProbe(() => fetch(url, {
       headers,
       signal: AbortSignal.timeout(PROVIDER_PROBE_TIMEOUT_MS),
     }));
@@ -91,6 +106,14 @@ async function fetchProviderWallet(provider: ProviderNetworkName, apiKey: string
   } else if (provider === "akunding") {
     balance = typeof body?.balance === "number" ? body.balance : Number.parseFloat(body?.balance);
     currency = body?.currency || "RMB";
+  } else if (provider === "zoomstore") {
+    balance = typeof body?.balance === "number" ? body.balance : Number.parseFloat(body?.balance);
+    currency = body?.currency || "USD";
+  } else if (provider === "ssondigital") {
+    balance = typeof body?.reseller?.balance === "number"
+      ? body.reseller.balance
+      : Number.parseFloat(body?.reseller?.balance);
+    currency = "USDT";
   }
 
   return {
@@ -109,7 +132,7 @@ export const providerSettingsRouter = createRouter({
   providerKeySave: adminQuery
     .input(
       z.object({
-        provider: z.enum(["technysoft", "canboso", "akunding"]),
+        provider: z.enum(["technysoft", "canboso", "akunding", "zoomstore", "ssondigital"]),
         apiKey: z.string().min(1),
       }),
     )
@@ -176,7 +199,7 @@ export const providerSettingsRouter = createRouter({
   providerKeyVerify: adminQuery
     .input(
       z.object({
-        provider: z.enum(["technysoft", "canboso", "akunding"]),
+        provider: z.enum(["technysoft", "canboso", "akunding", "zoomstore", "ssondigital"]),
         apiKey: z.string().min(1),
       }),
     )
@@ -205,7 +228,7 @@ export const providerSettingsRouter = createRouter({
 
   /* Fetch wallet balance using saved key */
   providerWallet: adminQuery
-    .input(z.object({ provider: z.enum(["technysoft", "canboso", "akunding"]) }))
+    .input(z.object({ provider: z.enum(["technysoft", "canboso", "akunding", "zoomstore", "ssondigital"]) }))
     .query(async ({ input }) => {
       await connectDb();
       const settingKey = `${input.provider}_api_key`;

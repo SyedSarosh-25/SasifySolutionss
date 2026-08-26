@@ -36,6 +36,8 @@ import {
 import { listTechnysoftProducts, normalizeTechnysoftProduct } from "../services/technysoft";
 import { listCanbosoProducts, normalizeCanbosoProduct } from "../services/canboso";
 import { listAkundingProducts, normalizeAkundingProduct } from "../services/akunding";
+import { listZoomStoreProducts, normalizeZoomStoreProduct } from "../services/zoomstore";
+import { listSsonProducts, normalizeSsonProduct } from "../services/sson-digital";
 import { isEditableAdminSettingKey, sanitizeAdminSettings } from "../lib/site-settings-security";
 import { approveDepositAndCredit, applyWalletMutation, runInTransaction } from "../services/wallet-ledger";
 import { providerDeliveryFields, readProviderDeliveryItems, sanitizeProviderDeliveryItems } from "../lib/provider-delivery";
@@ -649,7 +651,7 @@ export const adminRouter = createRouter({
       }
     }
 
-    const [technysoft, canboso, akunding] = await Promise.all([
+    const [technysoft, canboso, akunding, zoomstore, ssondigital] = await Promise.all([
       safeFetch("Technysoft", () =>
         listTechnysoftProducts().then((products) =>
           products.map((product) => ({
@@ -677,9 +679,27 @@ export const adminRouter = createRouter({
           })),
         ),
       ),
+      safeFetch("ZoomStore", () =>
+        listZoomStoreProducts().then((products) =>
+          products.map((product) => ({
+            provider: "zoomstore" as const,
+            raw: product,
+            product: normalizeZoomStoreProduct(product),
+          })),
+        ),
+      ),
+      safeFetch("SSOn Digital", () =>
+        listSsonProducts().then((products) =>
+          products.map((product) => ({
+            provider: "ssondigital" as const,
+            raw: product,
+            product: normalizeSsonProduct(product),
+          })),
+        ),
+      ),
     ]);
 
-    const all = [...technysoft, ...canboso, ...akunding].map((item) => ({
+    const all = [...technysoft, ...canboso, ...akunding, ...zoomstore, ...ssondigital].map((item) => ({
       provider: item.provider,
       externalProductId: String(item.product.id),
       key: duplicateKey(item.product.name),
@@ -785,6 +805,9 @@ export const adminRouter = createRouter({
       const product = clean(await ThirdPartyProduct.findOne({ id }).lean()) as any;
       if (!product) {
         throw new TRPCError({ code: "NOT_FOUND", message: "3rd party product not found" });
+      }
+      if (product.provider === "ssondigital" && rest.providerPurchaseEnabled === true) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "SSOn Digital live purchasing is unavailable until its order contract is configured. Keep this product in manual fulfillment mode." });
       }
       const usdToPkrRate = await currentUsdToPkrRate();
       const updates: Record<string, unknown> = { ...rest };
